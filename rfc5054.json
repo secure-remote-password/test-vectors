@@ -1,5 +1,5 @@
 {
-    "comments": "Test vector from RFC5054",
+    "comments": "RFC5054 test vectors",
     "url": "https://www.ietf.org/rfc/rfc5054.txt",
 
     "testVectors": [{
