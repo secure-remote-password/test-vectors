@@ -1,7 +1,7 @@
 ﻿## SRP-6a test vectors
 
-This repository contains test vectors for validating the SRP-6a protocol implementations.
-Test vectors are JSON files specifying the exact values for each authentication step.
+This repository contains test vectors for validating the SRP-6a protocol implementations.  
+Test vectors are JSON files specifying the exact values for each authentication step.  
 Each file contains a set of test vectors for different initialization parameters.
 
 ## Usage
@@ -32,7 +32,7 @@ Each file contains a set of test vectors for different initialization parameters
 * `M1` — client session proof (optional)
 * `M2` — server session proof (optional)
 
-Note: `K`, `M1` and `M2` parameters may be missing in the test vector.
+Note: `K`, `M1` and `M2` parameters may be missing in the test vector.  
 RFC5054 document doesn't specify these values.
 
 # Code examples
