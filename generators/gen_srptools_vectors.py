@@ -12,6 +12,10 @@ from srptools.constants import PRIME_3072_GEN, PRIME_3072
 from srptools.constants import PRIME_4096_GEN, PRIME_4096
 from srptools.constants import PRIME_6144_GEN, PRIME_6144
 
+import hashlib
+HASH_SHA_384 = hashlib.sha384
+HASH_SHA_512 = hashlib.sha512
+
 # initial values from RFC5054 test vector to use instead of random
 username = 'alice'
 password = 'password123'
@@ -97,16 +101,22 @@ def gen_test_vectors(prime=None, gen=None, size=1024):
     context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_256)
     json2 = gen_test_vector(context, "sha256", size)
 
-    return json1, json2
+    context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_384)
+    json3 = gen_test_vector(context, "sha384", size)
+
+    context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_512)
+    json4 = gen_test_vector(context, "sha512", size)
+
+    return json1, json2, json3, json4
 
 # generate test vectors
 
-s1024sha1, s1024sha256 = gen_test_vectors()
-s1536sha1, s1536sha256 = gen_test_vectors(PRIME_1536, PRIME_1536_GEN, 1536)
-s2048sha1, s2048sha256 = gen_test_vectors(PRIME_2048, PRIME_2048_GEN, 2048)
-s3072sha1, s3072sha256 = gen_test_vectors(PRIME_3072, PRIME_3072_GEN, 3072)
-s4096sha1, s4096sha256 = gen_test_vectors(PRIME_4096, PRIME_4096_GEN, 4096)
-s6144sha1, s6144sha256 = gen_test_vectors(PRIME_6144, PRIME_6144_GEN, 6144)
+s1024sha1, s1024sha256, s1024sha384, s1024sha512 = gen_test_vectors()
+s1536sha1, s1536sha256, s1536sha384, s1536sha512 = gen_test_vectors(PRIME_1536, PRIME_1536_GEN, 1536)
+s2048sha1, s2048sha256, s2048sha384, s2048sha512 = gen_test_vectors(PRIME_2048, PRIME_2048_GEN, 2048)
+s3072sha1, s3072sha256, s3072sha384, s3072sha512 = gen_test_vectors(PRIME_3072, PRIME_3072_GEN, 3072)
+s4096sha1, s4096sha256, s4096sha384, s4096sha512 = gen_test_vectors(PRIME_4096, PRIME_4096_GEN, 4096)
+s6144sha1, s6144sha256, s6144sha384, s6144sha512 = gen_test_vectors(PRIME_6144, PRIME_6144_GEN, 6144)
 
 # print json
 
@@ -114,13 +124,13 @@ json = """{{
     "comments": "Generated using srptools",
     "url": "https://github.com/idlesign/srptools",
 
-    "testVectors": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+    "testVectors": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
 }}""".format(
-    s1024sha1, s1024sha256,
-    s1536sha1, s1536sha256,
-    s2048sha1, s2048sha256,
-    s3072sha1, s3072sha256,
-    s4096sha1, s4096sha256,
-    s6144sha1, s6144sha256)
+    s1024sha1, s1024sha256, s1024sha384, s1024sha512,
+    s1536sha1, s1536sha256, s1536sha384, s1536sha512,
+    s2048sha1, s2048sha256, s2048sha384, s2048sha512,
+    s3072sha1, s3072sha256, s3072sha384, s3072sha512,
+    s4096sha1, s4096sha256, s4096sha384, s4096sha512,
+    s6144sha1, s6144sha256, s6144sha384, s6144sha512)
 
 print(json)
