@@ -77,7 +77,7 @@ def gen_test_vector(context, hash_name, size):
 
     # output
     def hex_from_bytes(val):
-        return hex_from(int_from_hex(hex_from(val)))
+        return ''.join(format(x, '02x') for x in val)
 
     return """{{
         "H": "{}",
