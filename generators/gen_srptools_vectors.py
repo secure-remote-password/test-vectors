@@ -5,16 +5,34 @@
 
 from srptools import SRPContext, SRPServerSession, SRPClientSession
 from srptools.utils import int_from_hex, hex_from
-from srptools.constants import HASH_SHA_256
 from srptools.constants import PRIME_1536_GEN, PRIME_1536
 from srptools.constants import PRIME_2048_GEN, PRIME_2048
 from srptools.constants import PRIME_3072_GEN, PRIME_3072
 from srptools.constants import PRIME_4096_GEN, PRIME_4096
 from srptools.constants import PRIME_6144_GEN, PRIME_6144
 
+# hash functions
+
 import hashlib
+HASH_SHA1 = hashlib.sha1
+HASH_SHA_256 = hashlib.sha256
 HASH_SHA_384 = hashlib.sha384
 HASH_SHA_512 = hashlib.sha512
+HASH_BLAKE2S_256 = hashlib.blake2s
+HASH_BLAKE2B_512 = hashlib.blake2b
+
+def blake2b_224(data):
+    return hashlib.blake2b(data, digest_size=28)
+
+def blake2b_256(data):
+    return hashlib.blake2b(data, digest_size=32)
+
+def blake2b_384(data):
+    return hashlib.blake2b(data, digest_size=48)
+
+HASH_BLAKE2B_224 = blake2b_224
+HASH_BLAKE2B_256 = blake2b_256
+HASH_BLAKE2B_384 = blake2b_384
 
 # initial values from RFC5054 test vector to use instead of random
 username = 'alice'
@@ -29,7 +47,6 @@ def get_context(prime=None, generator=None, hash_func=None):
 def gen_test_vector(context, hash_name, size):
 
     # signing up: computing the private key and the verifier
-    #context = SRPContext(username, password)
     prime = context.prime
     gen = context.generator
     multiplier = hex_from(context._mult)
@@ -95,28 +112,37 @@ def gen_test_vector(context, hash_name, size):
 
 def gen_test_vectors(prime=None, gen=None, size=1024):
 
-    context = get_context(prime=prime, generator=gen)
-    json1 = gen_test_vector(context, "sha1", size)
+    algorithms = {
+        "sha1": HASH_SHA1,
+        "sha256": HASH_SHA_256,
+        "sha384": HASH_SHA_384,
+        "sha512": HASH_SHA_512,
+        "blake2s-256": HASH_BLAKE2S_256,
+        "blake2b-224": HASH_BLAKE2B_224,
+        "blake2b-256": HASH_BLAKE2B_256,
+        "blake2b-384": HASH_BLAKE2B_384,
+        "blake2b-512": HASH_BLAKE2B_512
+    }
 
-    context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_256)
-    json2 = gen_test_vector(context, "sha256", size)
+    results = []
 
-    context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_384)
-    json3 = gen_test_vector(context, "sha384", size)
+    for a in algorithms:
+        context = get_context(prime=prime, generator=gen, hash_func=algorithms[a])
+        json = gen_test_vector(context, a, size)
+        results.append(json)
 
-    context = get_context(prime=prime, generator=gen, hash_func=HASH_SHA_512)
-    json4 = gen_test_vector(context, "sha512", size)
-
-    return json1, json2, json3, json4
+    return results
 
 # generate test vectors
 
-s1024sha1, s1024sha256, s1024sha384, s1024sha512 = gen_test_vectors()
-s1536sha1, s1536sha256, s1536sha384, s1536sha512 = gen_test_vectors(PRIME_1536, PRIME_1536_GEN, 1536)
-s2048sha1, s2048sha256, s2048sha384, s2048sha512 = gen_test_vectors(PRIME_2048, PRIME_2048_GEN, 2048)
-s3072sha1, s3072sha256, s3072sha384, s3072sha512 = gen_test_vectors(PRIME_3072, PRIME_3072_GEN, 3072)
-s4096sha1, s4096sha256, s4096sha384, s4096sha512 = gen_test_vectors(PRIME_4096, PRIME_4096_GEN, 4096)
-s6144sha1, s6144sha256, s6144sha384, s6144sha512 = gen_test_vectors(PRIME_6144, PRIME_6144_GEN, 6144)
+results = gen_test_vectors()
+results.extend(gen_test_vectors(PRIME_1536, PRIME_1536_GEN, 1536))
+results.extend(gen_test_vectors(PRIME_2048, PRIME_2048_GEN, 2048))
+results.extend(gen_test_vectors(PRIME_3072, PRIME_3072_GEN, 3072))
+results.extend(gen_test_vectors(PRIME_4096, PRIME_4096_GEN, 4096))
+results.extend(gen_test_vectors(PRIME_6144, PRIME_6144_GEN, 6144))
+
+json = ", ".join(results)
 
 # print json
 
@@ -124,13 +150,7 @@ json = """{{
     "comments": "Generated using srptools",
     "url": "https://github.com/idlesign/srptools",
 
-    "testVectors": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
-}}""".format(
-    s1024sha1, s1024sha256, s1024sha384, s1024sha512,
-    s1536sha1, s1536sha256, s1536sha384, s1536sha512,
-    s2048sha1, s2048sha256, s2048sha384, s2048sha512,
-    s3072sha1, s3072sha256, s3072sha384, s3072sha512,
-    s4096sha1, s4096sha256, s4096sha384, s4096sha512,
-    s6144sha1, s6144sha256, s6144sha384, s6144sha512)
+    "testVectors": [{}]
+}}""".format(json)
 
 print(json)
