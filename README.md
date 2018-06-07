@@ -7,12 +7,13 @@ Each file contains a set of test vectors for different initialization parameters
 ## Usage
 
 * Load test vectors using a suitable JSON implementation for your platform. 
-* Initialize your SRP library using `hash`, `N`, `g` and `size` parameters.
+* Initialize your SRP library using `H`, `N`, `g` and `size` parameters.
+* Ignore the test vector if your library doesn't support the specified hash function.
 * Verify each computation step against the values from the test vector.
 
 ## Test vector parameters
 
-* `H` — hash function: sha1, sha256, sha512
+* `H` — hash function: sha1, sha256, sha512, blake2b-256, etc.
 * `size` — prime number size (bits)
 * `N` — large safe prime number
 * `g` — group generator
@@ -33,7 +34,11 @@ Each file contains a set of test vectors for different initialization parameters
 * `M2` — server session proof (optional)
 
 Note: `K`, `M1` and `M2` parameters may be missing in the test vector.  
-RFC5054 document doesn't specify these values.
+RFC5054 document doesn't specify these values. They are calculated as follows:
+
+* K = [H(S)](https://github.com/secure-remote-password/stanford-srp/blob/587900d32777348f98477cb25123d5761fbe3725/libsrp/srp6_client.c#L272)
+* M1 = [H(H(N) xor H(g), H(I), s, A, B, K)](https://github.com/secure-remote-password/stanford-srp/blob/master/libsrp/srp6_client.c#L275)
+* M2 = [H(A, M1, K)](https://github.com/secure-remote-password/stanford-srp/blob/master/libsrp/srp6_server.c#L372)
 
 # Code examples
 
